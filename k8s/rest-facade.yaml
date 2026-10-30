@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest-facade
+  labels:
+    app: rest-facade
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rest-facade
+  template:
+    metadata:
+      labels:
+        app: rest-facade
+    spec:
+      containers:
+        - name: facade
+          image: YOUR_DOCKERHUB_USER/lab5-facade:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: GRPC_TARGET
+              value: domain-grpc:50051
+            - name: GRPC_DEADLINE_SECONDS
+              value: "0.35"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rest-facade
+spec:
+  selector:
+    app: rest-facade
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+

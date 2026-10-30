@@ -1,0 +1,7 @@
+fastapi>=0.110,<1
+grpcio>=1.62,<2
+grpcio-tools>=1.62,<2
+protobuf>=4.25,<7
+pydantic>=2.6,<3
+uvicorn[standard]>=0.27,<1
+

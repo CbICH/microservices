@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package domain.v1;
+
+// TODO : переименуйте сервис, сообщения и методы в соответствии со своим вариантом.
+service DomainService {
+  rpc GetEntity(GetEntityRequest) returns (EntityReply);
+  rpc ChangeState(ChangeStateRequest) returns (EntityReply);
+}
+
+message GetEntityRequest {
+  string id = 1;
+}
+
+message ChangeStateRequest {
+  string id = 1;
+  string command = 2;
+}
+
+message EntityReply {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+  string instance = 4;
+}
+

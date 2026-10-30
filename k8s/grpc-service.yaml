@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: domain-grpc
+  labels:
+    app: domain-grpc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: domain-grpc
+  template:
+    metadata:
+      labels:
+        app: domain-grpc
+    spec:
+      containers:
+        - name: grpc
+          image: YOUR_DOCKERHUB_USER/lab5-grpc:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 50051
+          env:
+            - name: TEST_DELAY_MS
+              value: "0"
+            # TODO: получайте реальное значение из Kubernetes Secret.
+            - name: DATABASE_URL
+              value: ""
+          readinessProbe:
+            grpc:
+              port: 50051
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            grpc:
+              port: 50051
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: domain-grpc
+spec:
+  selector:
+    app: domain-grpc
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: grpc
+

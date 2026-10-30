@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - grpc-service.yaml
+  - rest-facade.yaml
+  - gateway-config.yaml
+  - gateway.yaml
+

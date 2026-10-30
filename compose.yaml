@@ -1,0 +1,32 @@
+services:
+  grpc-service:
+    build:
+      context: .
+      dockerfile: grpc_service/Dockerfile
+    environment:
+      TEST_DELAY_MS: ${TEST_DELAY_MS:-0}
+      DATABASE_URL: ${DATABASE_URL:-}
+    ports:
+      - "50051:50051"
+
+  rest-facade:
+    build:
+      context: .
+      dockerfile: rest_facade/Dockerfile
+    environment:
+      GRPC_TARGET: grpc-service:50051
+      GRPC_DEADLINE_SECONDS: ${GRPC_DEADLINE_SECONDS:-0.35}
+    depends_on:
+      - grpc-service
+    ports:
+      - "8000:8000"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    depends_on:
+      - rest-facade
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+
