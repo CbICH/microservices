@@ -1,0 +1,39 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: APP_SERVICE_NAME-observability
+  namespace: STUDENT_NAMESPACE
+  labels:
+    app.kubernetes.io/part-of: microservice-project
+spec:
+  groups:
+    - name: APP_SERVICE_NAME.rules
+      rules:
+        - alert: ApplicationHighErrorRatio
+          expr: |
+            sum(rate(http_requests_total{namespace="STUDENT_NAMESPACE",service="APP_SERVICE_NAME",status=~"5.."}[2m]))
+            /
+            clamp_min(sum(rate(http_requests_total{namespace="STUDENT_NAMESPACE",service="APP_SERVICE_NAME"}[2m])), 0.001)
+            > ERROR_RATIO_THRESHOLD
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Высокая доля ошибок в APP_SERVICE_NAME"
+            description: "Доля HTTP 5xx превысила порог варианта и удерживается более минуты."
+
+        - alert: ApplicationHighP95Latency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (
+                rate(http_request_duration_seconds_bucket{namespace="STUDENT_NAMESPACE",service="APP_SERVICE_NAME"}[2m])
+              )
+            ) > LATENCY_THRESHOLD_SECONDS
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Высокая p95 задержка в APP_SERVICE_NAME"
+            description: "95-й процентиль длительности превысил порог варианта."
+

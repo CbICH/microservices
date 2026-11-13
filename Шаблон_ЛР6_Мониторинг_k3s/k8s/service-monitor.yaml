@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: APP_SERVICE_NAME
+  namespace: STUDENT_NAMESPACE
+  labels:
+    app.kubernetes.io/part-of: microservice-project
+spec:
+  namespaceSelector:
+    matchNames:
+      - STUDENT_NAMESPACE
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: APP_LABEL_VALUE
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 5s
+
